@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>두근 놀이터</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 상단 고정 헤더(로고 + 빨간빛 핑크 탭 버튼 4개), 아래는 최대 720px 단일 컬럼 놀이 화면 */
+:root{
+  --bg:#ffffff;
+  --ink:#2b1d22;
+  --muted:#85737a;
+  --line:#f1e2e6;
+  --blush:#fff4f6;
+  --pink:#e8436a;
+  --pink-deep:#c42a52;
+  --pink-soft:#fde3ea;
+  --on-pink:#ffffff;
+  --mate:#3a6fd8;
+  --mate-soft:#e6eefc;
+  --font-display:"Jua","Noto Sans KR",system-ui,sans-serif;
+  --font-body:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--bg);color:var(--ink)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+a,button,input,select,textarea,label{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#bal,#favor-out,#names-out{scroll-margin-top:130px}
+#favor-out,#names-out{display:grid;gap:14px}
+body{font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.sr{position:absolute;left:-9999px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:14px 10px}
+.brand{font-family:var(--font-display);font-size:30px;line-height:1;color:var(--pink);display:flex;align-items:center;gap:6px}
+.brand svg{width:26px;height:26px}
+.brand-sub{color:var(--muted);font-size:13px}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-block:0 12px}
+.tab{display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;border-radius:14px;background:var(--pink);color:var(--on-pink);font-weight:700;font-size:15px;padding:12px 6px;box-shadow:0 3px 0 var(--pink-deep);transition:transform .12s,box-shadow .12s,background .12s;text-align:center}
+.tab svg{width:18px;height:18px;flex:none}
+.tab:hover{background:#ef5479}
+.tab[aria-current="page"]{background:var(--pink-deep);box-shadow:0 0 0 var(--pink-deep);transform:translateY(3px)}
+.tab .short{display:none}
+.btn:active,.opt:active,.fchip:active{transform:scale(.97)}
+
+main{padding-block:20px 40px}
+section.view{display:grid;gap:18px}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--pink-deep);font-weight:700}
+.h2{font-family:var(--font-display);font-size:24px;font-weight:400;line-height:1.3}
+.lead{color:var(--muted);font-size:14px}
+.fun{font-size:12.5px;color:var(--muted)}
+
+.btn{appearance:none;border:0;border-radius:12px;background:var(--pink);color:var(--on-pink);font-weight:700;padding:11px 18px;cursor:pointer;box-shadow:0 2px 0 var(--pink-deep);text-decoration:none;display:inline-block}
+.btn:hover{background:#ef5479}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:var(--bg);color:var(--pink-deep);border:1.5px solid var(--pink);box-shadow:none}
+.btn.ghost:hover{background:var(--blush)}
+.btn.small{padding:8px 12px;font-size:13.5px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.panel{border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:14px;min-width:0}
+.panel.pink{background:var(--blush);border-color:var(--pink-soft)}
+.names{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-weight:700;font-size:14px}
+.hint{font-size:12.5px;color:var(--muted);font-weight:400}
+.and{font-family:var(--font-display);font-size:22px;color:var(--pink);padding-bottom:8px}
+input[type=text],select,textarea{font-size:16px;width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+input:focus,select:focus,textarea:focus{border-color:var(--pink);outline:none;box-shadow:0 0 0 3px var(--pink-soft)}
+.err{color:var(--pink-deep);font-size:13.5px;font-weight:700;min-height:1em}
+
+/* balance game */
+.q-card{border:1px solid var(--line);border-radius:22px;padding:20px;display:grid;gap:18px}
+.q-top{display:flex;align-items:center;gap:12px}
+.turn{font-weight:700;border-radius:999px;padding:2px 12px;font-size:13.5px;flex:none}
+.turn.p1{background:var(--pink-soft);color:var(--pink-deep)}
+.turn.p2{background:var(--mate-soft);color:var(--mate)}
+.q-num{font-family:var(--font-display);font-size:18px;color:var(--pink-deep);font-variant-numeric:tabular-nums;flex:none}
+.q-bar{flex:1;height:8px;border-radius:999px;background:var(--pink-soft);overflow:hidden}
+.q-bar i{display:block;height:100%;background:var(--pink);border-radius:999px;transition:width .25s}
+.q-kicker{font-size:12.5px;font-weight:700;color:var(--muted)}
+.q-title{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3}
+.q-opts{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+.opt{appearance:none;border:2px solid var(--pink);background:var(--bg);color:var(--ink);border-radius:18px;padding:22px 14px;font-weight:700;font-size:16px;cursor:pointer;display:grid;gap:8px;justify-items:center;align-content:center;text-align:center;min-height:120px;transition:background .12s,transform .12s}
+.opt:hover{background:var(--blush)}
+.opt.picked{background:var(--pink);color:var(--on-pink);transform:scale(.98)}
+.opt-k{font-family:var(--font-display);font-weight:400;font-size:22px;color:var(--pink)}
+.opt.picked .opt-k{color:var(--on-pink)}
+.vs{align-self:center;justify-self:center;font-family:var(--font-display);font-size:20px;color:var(--pink-deep)}
+.textbtn{appearance:none;border:0;background:none;color:var(--muted);font-size:13.5px;cursor:pointer;justify-self:start;padding:4px 0;text-decoration:underline}
+.handoff{text-align:center;justify-items:center;padding:32px 18px}
+.handoff .big{font-family:var(--font-display);font-size:28px;color:var(--mate)}
+.dots{display:inline-flex;gap:5px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--pink)}
+.result-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.result-num{font-family:var(--font-display);font-size:44px;line-height:1;color:var(--pink);font-variant-numeric:tabular-nums}
+.result-num small{font-size:20px;color:var(--muted)}
+.result-lbl{font-family:var(--font-display);font-size:20px;color:var(--pink-deep)}
+.cmp{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.cmp li{display:grid;grid-template-columns:88px 1fr 1fr;gap:8px;align-items:center;font-size:13.5px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.cmp li:last-child{border-bottom:0;padding-bottom:0}
+.cmp .k{color:var(--muted);font-size:12.5px}
+.cmp .a1{color:var(--pink-deep);font-weight:700}
+.cmp .a2{color:var(--mate);font-weight:700}
+.cmp li.same .k::after{content:" 같아요";color:var(--pink);font-weight:700}
+.cmp-head{font-size:12.5px;font-weight:700}
+
+/* favor meter */
+.meter-big{display:grid;gap:10px}
+.pct{font-family:var(--font-display);font-size:56px;line-height:1;color:var(--pink);font-variant-numeric:tabular-nums}
+.pct small{font-size:24px}
+.bar{height:16px;border-radius:999px;background:var(--pink-soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f37b98,var(--pink));border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.subs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sub{display:grid;gap:6px;min-width:0}
+.sub span{font-size:13px;color:var(--muted)}
+.sub b{font-variant-numeric:tabular-nums;color:var(--pink-deep)}
+.sub .bar{height:8px}
+.msg-big{font-family:var(--font-display);font-size:20px;color:var(--ink)}
+
+/* name compatibility pyramid */
+.compat-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dir{display:grid;gap:10px;min-width:0}
+.dir-title{font-weight:700;font-size:14px}
+.dir-title .p1{color:var(--pink-deep)}
+.dir-title .p2{color:var(--mate)}
+.dir-pct{font-family:var(--font-display);font-size:40px;line-height:1;color:var(--pink);font-variant-numeric:tabular-nums}
+.pyr-scroll{overflow-x:auto;padding-bottom:4px}
+.pyr{display:grid;gap:4px;justify-items:center;min-width:max-content;margin:0 auto}
+.pyr .row{display:flex;gap:4px}
+.pyr .c{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;font-variant-numeric:tabular-nums;font-size:14px;background:var(--bg);border:1px solid var(--line)}
+.pyr .syl{font-weight:700;border:0}
+.pyr .syl.p1{background:var(--pink-soft);color:var(--pink-deep)}
+.pyr .syl.p2{background:var(--mate-soft);color:var(--mate)}
+.pyr .row.last .c{background:var(--pink);color:var(--on-pink);border-color:var(--pink);font-weight:700}
+
+/* talk */
+.topics{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{appearance:none;border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.fchip:hover{border-color:var(--pink);color:var(--pink-deep)}
+.age-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.age-row select{width:auto;min-width:140px}
+.chat{border:1px solid var(--line);border-radius:18px;display:grid;overflow:hidden}
+.log{max-height:min(52vh,460px);min-height:220px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.msg{max-width:86%;padding:10px 14px;border-radius:16px;font-size:14.5px;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--pink);color:var(--on-pink);border-bottom-right-radius:4px}
+.msg.assistant{align-self:flex-start;background:var(--blush);border:1px solid var(--pink-soft);border-bottom-left-radius:4px}
+.msg .who-lbl{display:block;font-size:11.5px;font-weight:700;color:var(--pink-deep);margin-bottom:2px}
+.msg.typing{color:var(--muted)}
+.composer{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:var(--bg);align-items:flex-end}
+.composer textarea{resize:none;min-height:44px;max-height:140px}
+.composer .btn{flex:none;height:44px}
+
+/* QR 입장 잠금 화면 */
+.gate-wrap{padding-block:28px 40px}
+.gate-card{max-width:460px;margin:0 auto}
+.gate-steps{margin:0;padding-left:22px;display:grid;gap:4px;font-size:14.5px}
+.gate-steps li::marker{color:var(--pink);font-weight:700}
+
+/* 내 프로필 */
+#prof-card{scroll-margin-top:130px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lbl{font-weight:700;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips span{display:inline-block;border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px;cursor:pointer}
+.chips input:checked+span{border-color:var(--pink);background:var(--pink);color:var(--on-pink);font-weight:700}
+.chips input:focus-visible+span{outline:3px solid var(--pink);outline-offset:2px}
+.spacer{flex:1}
+.ok{color:#1d7f55;font-size:13.5px;font-weight:700;min-height:1em}
+.pcard-top{display:flex;gap:14px;align-items:center}
+.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-display);font-size:26px;background:var(--bg);color:var(--pink-deep);border:2px solid var(--pink-soft);flex:none}
+.pcard-name{font-family:var(--font-display);font-weight:400;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
+.pcard-bio{overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.tag{font-size:13px;border:1px solid var(--pink-soft);background:var(--bg);color:var(--pink-deep);border-radius:999px;padding:2px 10px;font-weight:700}
+details summary{cursor:pointer;font-weight:700;font-size:14px}
+details .cmp{margin-top:10px}
+.empty-card{border:1.5px dashed var(--line);border-radius:18px;padding:22px 18px;color:var(--muted);text-align:center}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--muted);font-size:12.5px}
+footer ul{margin:6px 0 0;padding-left:18px;display:grid;gap:2px}
+
+/* 휴대폰: 헤더를 줄이고, 탭은 아이콘 위·글자 아래 앱 모양, A/B는 나란히 */
+@media (max-width:560px){
+  .brand-row{padding-block:10px 8px}
+  .brand{font-size:24px}
+  .brand svg{width:22px;height:22px}
+  .brand-sub{display:none}
+  nav{gap:6px;padding-block:0 10px}
+  .tab{flex-direction:column;gap:3px;font-size:13px;padding:8px 2px 7px;border-radius:12px}
+  .tab svg{width:20px;height:20px}
+  .tab .full{display:none}
+  .tab .short{display:inline}
+  #bal,#favor-out,#names-out{scroll-margin-top:110px}
+  main{padding-block:16px 32px}
+  .h2{font-size:22px}
+  .panel{padding:16px}
+  .names{grid-template-columns:1fr}
+  .and{padding:0;justify-self:center;line-height:1}
+  .actions .btn{flex:1;text-align:center}
+  .q-card{padding:16px;gap:16px}
+  .q-title{font-size:22px}
+  .q-opts{grid-template-columns:1fr 1fr;gap:10px}
+  .vs{display:none}
+  .opt{min-height:128px;padding:16px 10px;font-size:15.5px}
+  .compat-pair{grid-template-columns:1fr}
+  .pyr .row{gap:3px}
+  .pyr .c{width:25px;height:25px;font-size:13px;border-radius:7px}
+  .subs{grid-template-columns:1fr}
+  .cmp li{grid-template-columns:66px 1fr 1fr;font-size:13px}
+  .pct{font-size:48px}
+  .result-num{font-size:40px}
+  .log{max-height:min(56vh,460px)}
+  .msg{max-width:90%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.2.3.6.3.8 0 .7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path fill="currentColor" d="M11 3h2v2.1l6 1.4V5h2v2.9l-.1.1L23 13a4 4 0 0 1-8 0l2.6-5.5L13 6.4V19h4v2H7v-2h4V6.4L6.4 7.5 9 13a4 4 0 0 1-8 0l2.1-5L3 7.9V5h2v1.5l6-1.4zM5 9.2 3.3 13h3.4zm14 0L17.3 13h3.4z"/></symbol>
+  <symbol id="i-name" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm2 4v2h7V8zm0 4v2h12v-2zm9-4v2h3V8z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path fill="currentColor" d="M3.5 21c.6-4.4 4.2-7 8.5-7s7.9 2.6 8.5 7z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap">
+    <div class="brand-row">
+      <div class="brand"><svg aria-hidden="true"><use href="#i-heart"/></svg>두근 놀이터</div>
+      <div class="brand-sub">친구 마음이 궁금할 때 놀러 오는 곳</div>
+    </div>
+    <nav aria-label="메뉴" hidden>
+      <a class="tab" href="#balance" data-view="balance" aria-label="밸런스 게임"><svg aria-hidden="true"><use href="#i-scale"/></svg><span class="full">밸런스 게임</span><span class="short" aria-hidden="true">밸런스</span></a>
+      <a class="tab" href="#favor" data-view="favor" aria-label="호감도 예상"><svg aria-hidden="true"><use href="#i-heart"/></svg><span class="full">호감도 예상</span><span class="short" aria-hidden="true">호감도</span></a>
+      <a class="tab" href="#names" data-view="names" aria-label="이름 궁합"><svg aria-hidden="true"><use href="#i-name"/></svg><span class="full">이름 궁합</span><span class="short" aria-hidden="true">궁합</span></a>
+      <a class="tab" href="#talk" data-view="talk" aria-label="고민 상담"><svg aria-hidden="true"><use href="#i-chat"/></svg><span class="full">고민 상담</span><span class="short" aria-hidden="true">상담</span></a>
+      <a class="tab" href="#profile" data-view="profile" aria-label="내 프로필"><svg aria-hidden="true"><use href="#i-user"/></svg><span class="full">내 프로필</span><span class="short" aria-hidden="true">프로필</span></a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap gate-wrap" id="gate">
+  <div class="panel pink gate-card">
+    <p class="eyebrow">FRIENDS ONLY</p>
+    <h1 class="h2">QR 코드를 받은 친구만 들어올 수 있어요</h1>
+    <p class="lead">초대받을 때 받은 QR 코드로 들어와 주세요. 한 번 들어오면 이 기기에서는 다음부터 바로 열려요.</p>
+    <ol class="gate-steps">
+      <li>휴대폰 카메라 앱을 열어요</li>
+      <li>받은 QR 코드를 화면에 비춰요</li>
+      <li>위에 뜨는 링크를 눌러요</li>
+    </ol>
+    <p class="err" id="gate-err" role="alert"></p>
+  </div>
+</div>
+
+<main class="wrap" hidden>
+  <!-- 밸런스 게임 -->
+  <section class="view" id="view-balance" aria-labelledby="t-balance">
+    <div>
+      <p class="eyebrow">BALANCE GAME</p>
+      <h1 class="h2" id="t-balance">둘 중 하나! 밸런스 게임</h1>
+      <p class="lead">친구랑 한 기기로 번갈아 풀어 보세요. 10문제를 다 풀면 같은 답이 몇 개인지 알려줘요.</p>
+    </div>
+    <div id="bal" style="display:grid;gap:18px"></div>
+  </section>
+
+  <!-- 호감도 예상 -->
+  <section class="view" id="view-favor" aria-labelledby="t-favor" hidden>
+    <div>
+      <p class="eyebrow">TODAY'S FAVOR</p>
+      <h1 class="h2" id="t-favor">두 사람의 오늘 호감도는?</h1>
+      <p class="lead">이름 두 개를 넣으면 오늘의 호감도를 예상해 줘요. 날마다 결과가 바뀌어요.</p>
+    </div>
+    <form class="panel" id="favor-form" novalidate>
+      <div class="names">
+        <div class="field"><label for="fa">첫 번째 이름</label><input type="text" id="fa" maxlength="5" placeholder="예: 김민수" autocomplete="off" lang="ko" enterkeyhint="next"></div>
+        <span class="and" aria-hidden="true">&amp;</span>
+        <div class="field"><label for="fb">두 번째 이름</label><input type="text" id="fb" maxlength="5" placeholder="예: 이서연" autocomplete="off" lang="ko" enterkeyhint="go"></div>
+      </div>
+      <p class="err" id="favor-err" role="alert"></p>
+      <div class="actions"><button class="btn" type="submit">호감도 보기</button></div>
+    </form>
+    <div id="favor-out"></div>
+  </section>
+
+  <!-- 이름 궁합 -->
+  <section class="view" id="view-names" aria-labelledby="t-names" hidden>
+    <div>
+      <p class="eyebrow">NAME MATCH</p>
+      <h1 class="h2" id="t-names">이름 궁합 테스트</h1>
+      <p class="lead">두 이름을 한 글자씩 번갈아 놓고 글자마다 획수를 센 다음, 옆 숫자끼리 더한 일의 자리만 남기며 두 자리가 될 때까지 줄여요. 이름을 놓는 순서에 따라 결과가 달라져요.</p>
+    </div>
+    <form class="panel" id="names-form" novalidate>
+      <div class="names">
+        <div class="field"><label for="na">첫 번째 이름</label><input type="text" id="na" maxlength="5" placeholder="예: 김민수" autocomplete="off" lang="ko" enterkeyhint="next"></div>
+        <span class="and" aria-hidden="true">&amp;</span>
+        <div class="field"><label for="nb">두 번째 이름</label><input type="text" id="nb" maxlength="5" placeholder="예: 이서연" autocomplete="off" lang="ko" enterkeyhint="go"></div>
+      </div>
+      <p class="err" id="names-err" role="alert"></p>
+      <div class="actions"><button class="btn" type="submit">궁합 보기</button></div>
+    </form>
+    <div id="names-out"></div>
+  </section>
+
+  <!-- 고민 상담 -->
+  <section class="view" id="view-talk" aria-labelledby="t-talk" hidden>
+    <div>
+      <p class="eyebrow">TALK</p>
+      <h1 class="h2" id="t-talk">연애·짝사랑·친구 고민 상담</h1>
+      <p class="lead">나이를 알려주면 나이에 맞게 쉽게 답해 줘요. 적은 내용은 답을 만드는 데만 쓰이고 다른 사람에게 보이지 않아요.</p>
+    </div>
+    <div class="age-row">
+      <label for="age"><strong>나이</strong> <span class="hint">8세 이상</span></label>
+      <select id="age"></select>
+    </div>
+    <div class="topics" role="group" aria-label="자주 하는 고민">
+      <button class="fchip" type="button" data-q="좋아하는 친구가 생겼어요. 이 마음을 어떻게 해야 할까요?">좋아하는 친구가 생겼어요</button>
+      <button class="fchip" type="button" data-q="그 친구도 나를 좋아하는지 궁금해요.">그 친구 마음이 궁금해요</button>
+      <button class="fchip" type="button" data-q="좋아한다고 말하고 싶은데 너무 떨려요.">마음을 말하고 싶어요</button>
+      <button class="fchip" type="button" data-q="친한 친구랑 다퉜어요. 어떻게 화해하면 좋을까요?">친구랑 다퉜어요</button>
+      <button class="fchip" type="button" data-q="친구들이 좋아하는 사람 있다고 놀려서 속상해요.">놀림받아서 속상해요</button>
+    </div>
+    <div class="chat">
+      <div class="log" id="log" aria-live="polite"></div>
+      <form class="composer" id="composer">
+        <label for="q" class="sr">고민 입력</label>
+        <textarea id="q" rows="1" maxlength="600" placeholder="고민을 적어 주세요" lang="ko" enterkeyhint="send"></textarea>
+        <button class="btn" type="submit" id="send">보내기</button>
+      </form>
+    </div>
+    <p class="fun">이름, 학교, 주소, 전화번호 같은 개인 정보는 적지 마세요.</p>
+  </section>
+
+  <!-- 내 프로필 -->
+  <section class="view" id="view-profile" aria-labelledby="t-profile" hidden>
+    <div>
+      <p class="eyebrow">PROFILE</p>
+      <h1 class="h2" id="t-profile">내 프로필 만들기</h1>
+      <p class="lead">프로필은 이 기기에만 저장되고 다른 친구에게는 보이지 않아요. 진짜 이름, 학교, 주소, 전화번호, 사진은 넣지 마세요.</p>
+    </div>
+    <div id="prof-card"></div>
+    <form class="panel" id="prof-form" novalidate>
+      <div class="row2">
+        <div class="field"><label for="pf-nick">별명 <span class="hint">2~10자</span></label><input type="text" id="pf-nick" maxlength="10" placeholder="예: 떡볶이왕" autocomplete="off" lang="ko" enterkeyhint="next"></div>
+        <div class="field"><label for="pf-age">나이 <span class="hint">8세 이상</span></label><select id="pf-age"></select></div>
+      </div>
+      <div class="field"><span class="lbl">좋아하는 것 <span class="hint">1~5개</span></span><div class="chips" id="pf-likes"></div></div>
+      <div class="field"><label for="pf-bio">한 줄 소개 <span class="hint" id="pf-count">0 / 40</span></label><input type="text" id="pf-bio" maxlength="40" placeholder="예: 쉬는 시간엔 그림 그려요" autocomplete="off" lang="ko" enterkeyhint="done"></div>
+      <p class="err" id="pf-err" role="alert"></p>
+      <p class="ok" id="pf-ok" role="status"></p>
+      <div class="actions"><button class="btn" type="submit" id="pf-save">프로필 저장</button><span class="spacer"></span><span id="pf-del"></span></div>
+    </form>
+    <div class="panel">
+      <strong>이 기기에서 나가기</strong>
+      <p class="lead">가족과 같이 쓰는 기기라면 나가 두세요. 다시 들어오려면 받은 QR 코드를 찍으면 돼요. 프로필은 지워지지 않아요.</p>
+      <div class="actions"><button class="btn ghost" type="button" id="logout">나가기</button></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <strong>안전하게 놀아요</strong>
+    <ul>
+      <li>게임 결과는 재미로 보는 거예요. 진짜 마음은 직접 이야기해야 알 수 있어요.</li>
+      <li>친구 이름으로 놀 때는 친구가 싫어하면 하지 않고, 결과로 친구를 놀리지 않아요.</li>
+      <li>온라인에서 처음 보는 사람이 만나자고 하거나 사진·주소를 물으면 대답하지 말고 어른에게 알려요.</li>
+      <li>마음이 힘들거나 괴롭힘을 당하면 청소년상담전화 1388, 학교폭력 신고 117에서 도움을 받을 수 있어요.</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const HANGUL=/^[가-힣]{1,5}$/;
+// 휴대폰: 결과가 화면 밖이면 키보드를 내리고 결과로 스크롤
+function reveal(el){
+  const ae=document.activeElement;
+  if(ae&&ae.matches&&ae.matches("input,textarea,select"))ae.blur();
+  const r=el.getBoundingClientRect();
+  if(r.top<90||r.top>window.innerHeight*0.55)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+}
+// 첫 번째 이름 칸에서 Enter(다음)를 누르면 두 번째 칸으로
+function chainEnter(a,b){a.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();b.focus()}})}
+
+/* ---------- 라우팅 ---------- */
+const VIEWS=["balance","favor","names","talk","profile"];
+function route(){
+  const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"balance";
+  VIEWS.forEach(n=>{$("#view-"+n).hidden=n!==v});
+  document.querySelectorAll(".tab").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(v==="talk")scrollLog();
+  if(v==="profile"&&!profDirty)fillProf();
+}
+window.addEventListener("hashchange",()=>{
+  if(!$("#gate").hidden&&TOKEN.test(location.hash.slice(1))){gate();return}
+  route();window.scrollTo(0,0);
+});
+
+/* ---------- 밸런스 게임 ---------- */
+const QS=[
+ {k:"간식",q:"딱 하나만 먹을 수 있다면?",a:"떡볶이",b:"치킨"},
+ {k:"쉬는 시간",q:"쉬는 시간에 나는?",a:"운동장에서 뛰어놀기",b:"교실에서 수다 떨기"},
+ {k:"놀러 가기",q:"방학에 놀러 간다면?",a:"바다",b:"놀이공원"},
+ {k:"초능력",q:"초능력 하나를 고른다면?",a:"순간이동",b:"투명인간"},
+ {k:"반려동물",q:"같이 살고 싶은 동물은?",a:"강아지",b:"고양이"},
+ {k:"주말",q:"주말에 나는?",a:"밖에서 신나게 놀기",b:"집에서 뒹굴뒹굴"},
+ {k:"다툼",q:"친구랑 다퉜을 때 나는?",a:"바로 먼저 사과한다",b:"마음이 가라앉고 이야기한다"},
+ {k:"생일 선물",q:"생일 선물은?",a:"깜짝 선물",b:"갖고 싶은 걸 직접 고르기"},
+ {k:"아침",q:"아침에 먹고 싶은 건?",a:"따뜻한 밥",b:"달콤한 빵"},
+ {k:"수업",q:"더 좋아하는 시간은?",a:"체육",b:"미술"}
+];
+const N=QS.length;
+let G={phase:"setup",p1:"",p2:"",turn:1,step:0,a1:[],a2:[],lock:false};
+function balLabel(n){return n>=9?"마음이 척척 통하는 단짝":n>=7?"취향이 잘 맞는 친구":n>=5?"반반! 서로 다른 점이 재미있어요":"정반대라서 더 궁금한 사이"}
+function renderBal(){
+  const box=$("#bal");
+  if(G.phase==="setup"){
+    box.innerHTML=`<form class="panel pink" id="bal-form" novalidate>
+      <div class="names">
+        <div class="field"><label for="b1">첫 번째 친구</label><input type="text" id="b1" maxlength="8" placeholder="예: 민수" value="${esc(G.p1||(PROF&&PROF.nick)||"")}" autocomplete="off" lang="ko" enterkeyhint="next"></div>
+        <span class="and" aria-hidden="true">&amp;</span>
+        <div class="field"><label for="b2">두 번째 친구 <span class="hint">비우면 혼자 하기</span></label><input type="text" id="b2" maxlength="8" placeholder="예: 서연" value="${esc(G.p2)}" autocomplete="off" lang="ko" enterkeyhint="go"></div>
+      </div>
+      <p class="err" id="bal-err" role="alert"></p>
+      <div class="actions"><button class="btn" type="submit">게임 시작</button></div>
+    </form>`;
+    chainEnter($("#b1"),$("#b2"));
+    $("#bal-form").addEventListener("submit",e=>{
+      e.preventDefault();
+      const p1=$("#b1").value.trim(),p2=$("#b2").value.trim();
+      if(!p1){$("#bal-err").textContent="첫 번째 친구 이름을 적어 주세요.";return}
+      if(p2&&p2===p1){$("#bal-err").textContent="두 친구 이름이 같아요. 다르게 적어 주세요.";return}
+      G={phase:"play",p1,p2,turn:1,step:0,a1:[],a2:[],lock:false};renderBal();reveal($("#bal"));
+    });
+    return;
+  }
+  if(G.phase==="handoff"){
+    box.innerHTML=`<div class="panel handoff">
+      <p class="lead">${esc(G.p1)} 차례가 끝났어요. 답이 보이지 않게 기기를 넘겨 주세요.</p>
+      <p class="big">이제 ${esc(G.p2)} 차례!</p>
+      <button class="btn" type="button" data-bal="go">준비됐어요</button>
+    </div>`;
+    return;
+  }
+  if(G.phase==="play"){
+    const q=QS[G.step],name=G.turn===1?G.p1:G.p2;
+    box.innerHTML=`<div class="q-card">
+      <div class="q-top"><span class="turn p${G.turn}">${esc(name)} 차례</span><span class="q-num">${G.step+1} / ${N}</span><div class="q-bar" aria-hidden="true"><i style="width:${G.step/N*100}%"></i></div></div>
+      <div><p class="q-kicker">${esc(q.k)}</p><h2 class="q-title">${esc(q.q)}</h2></div>
+      <div class="q-opts">
+        <button class="opt" type="button" data-pick="0"><span class="opt-k">A</span>${esc(q.a)}</button>
+        <span class="vs" aria-hidden="true">VS</span>
+        <button class="opt" type="button" data-pick="1"><span class="opt-k">B</span>${esc(q.b)}</button>
+      </div>
+      <button class="textbtn" type="button" data-bal="${G.step?"back":"quit"}">${G.step?"이전 문제로":"그만하기"}</button>
+    </div>`;
+    return;
+  }
+  // 결과
+  const solo=!G.p2;
+  if(solo){
+    box.innerHTML=`<div class="panel pink">
+      <strong>${esc(G.p1)}의 선택</strong>
+      <ul class="cmp">${QS.map((q,i)=>`<li style="grid-template-columns:88px 1fr"><span class="k">${esc(q.k)}</span><span class="a1">${esc(G.a1[i]?q.b:q.a)}</span></li>`).join("")}</ul>
+      <p class="lead">친구 이름도 넣고 같이 하면 몇 개가 같은지 비교할 수 있어요.</p>
+      <div class="actions"><button class="btn" type="button" data-bal="again">친구랑 하기</button></div>
+    </div>`;
+    return;
+  }
+  let same=0;G.a1.forEach((x,i)=>{if(x===G.a2[i])same++});
+  box.innerHTML=`<div class="panel pink">
+    <div class="result-head">
+      <div class="result-num">${same}<small> / ${N}</small></div>
+      <div><p class="lead">${esc(G.p1)}와(과) ${esc(G.p2)}의 같은 답</p><p class="result-lbl">${balLabel(same)}</p></div>
+    </div>
+    <span class="dots" role="img" aria-label="${N}문제 중 ${same}개 같은 답">${G.a1.map((x,i)=>`<i class="${x===G.a2[i]?"on":""}"></i>`).join("")}</span>
+  </div>
+  <div class="panel">
+    <ul class="cmp">
+      <li><span class="cmp-head">문제</span><span class="cmp-head a1">${esc(G.p1)}</span><span class="cmp-head a2">${esc(G.p2)}</span></li>
+      ${QS.map((q,i)=>`<li class="${G.a1[i]===G.a2[i]?"same":""}"><span class="k">${esc(q.k)}</span><span class="a1">${esc(G.a1[i]?q.b:q.a)}</span><span class="a2">${esc(G.a2[i]?q.b:q.a)}</span></li>`).join("")}
+    </ul>
+    <div class="actions"><button class="btn" type="button" data-bal="replay">같은 친구랑 다시</button><button class="btn ghost" type="button" data-bal="again">다른 친구랑 하기</button></div>
+  </div>`;
+}
+function pick(v){
+  if(G.lock)return;G.lock=true;
+  const b=document.querySelector(`.opt[data-pick="${v}"]`);if(b)b.classList.add("picked");
+  setTimeout(()=>{
+    G.lock=false;
+    (G.turn===1?G.a1:G.a2)[G.step]=v;
+    G.step++;
+    if(G.step>=N){
+      if(G.turn===1&&G.p2){G.phase="handoff"}
+      else G.phase="result";
+      if(G.phase==="result")saveBalanceToProfile();
+    }
+    renderBal();
+    if(G.phase!=="play")reveal($("#bal"));
+    const o=document.querySelector(".opt");if(o&&(document.activeElement===document.body||!document.activeElement))o.focus({preventScroll:true});
+  },180);
+}
+
+/* ---------- 이름 궁합 (획수) ---------- */
+// 손으로 쓰는 획수 기준. 초성 19, 중성 21, 종성 28(받침 없음 포함)
+const CHO=[1,2,1,2,4,3,3,4,8,2,4,1,2,4,3,2,3,4,3];
+const JUNG=[2,3,3,4,2,3,3,4,2,4,5,3,3,2,4,5,3,3,1,2,1];
+const JONG=[0,1,2,3,1,3,4,2,3,4,6,7,5,6,7,6,3,4,6,2,4,1,2,3,2,3,4,3];
+function strokes(ch){const c=ch.charCodeAt(0)-0xAC00;return CHO[Math.floor(c/588)]+JUNG[Math.floor((c%588)/28)]+JONG[c%28]}
+function weave(a,b){const out=[];const n=Math.max(a.length,b.length);for(let i=0;i<n;i++){if(i<a.length)out.push({ch:a[i],who:1});if(i<b.length)out.push({ch:b[i],who:2})}return out}
+function compat(a,b){
+  const syl=weave([...a],[...b]);
+  const rows=[syl.map(s=>strokes(s.ch)%10)];
+  while(rows[rows.length-1].length>2){const r=rows[rows.length-1];const nx=[];for(let i=0;i<r.length-1;i++)nx.push((r[i]+r[i+1])%10);rows.push(nx)}
+  const last=rows[rows.length-1];
+  let pct=last.length===2?last[0]*10+last[1]:last[0]*10;
+  if(pct===0)pct=100;
+  return{syl,rows,pct};
+}
+function compatMsg(p){return p>=90?"찰떡궁합! 같이 있으면 시간 가는 줄 몰라요":p>=70?"잘 맞는 사이예요. 서로 칭찬해 주면 더 가까워져요":p>=50?"알아갈수록 재미있는 사이":p>=30?"서로 다른 점이 많아서 배울 게 많아요":"아직은 서로 잘 모르는 사이. 먼저 인사해 볼까요?"}
+function pyramid(r,first,second){
+  const top=`<div class="row">${r.syl.map(s=>`<span class="c syl p${s.who}">${esc(s.ch)}</span>`).join("")}</div>`;
+  const rows=r.rows.map((row,i)=>`<div class="row${i===r.rows.length-1?" last":""}">${row.map(d=>`<span class="c">${d}</span>`).join("")}</div>`).join("");
+  return `<div class="dir">
+    <p class="dir-title"><span class="p1">${esc(first)}</span> → <span class="p2">${esc(second)}</span></p>
+    <p class="dir-pct">${r.pct}%</p>
+    <div class="pyr-scroll"><div class="pyr" role="img" aria-label="${esc(first)}와 ${esc(second)} 이름 궁합 계산 과정, 결과 ${r.pct}퍼센트">${top}${rows}</div></div>
+  </div>`;
+}
+$("#names-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const a=$("#na").value.trim(),b=$("#nb").value.trim(),err=$("#names-err");err.textContent="";
+  if(!HANGUL.test(a)||!HANGUL.test(b)){err.textContent="이름은 한글로 1~5글자씩 적어 주세요. 띄어쓰기 없이 적어요.";return}
+  const r1=compat(a,b),r2=compat(b,a);
+  const avg=Math.round((r1.pct+r2.pct)/2);
+  // 처음 이름 쪽은 핑크, 두 번째 이름 쪽은 파랑으로 칠하기 위해 r2의 who를 뒤집는다
+  r2.syl=r2.syl.map(s=>({...s,who:s.who===1?2:1}));
+  $("#names-out").innerHTML=`<div class="panel pink">
+      <p class="lead">두 방향을 합친 궁합</p>
+      <p class="pct">${avg}<small>%</small></p>
+      <p class="msg-big">${compatMsg(avg)}</p>
+    </div>
+    <div class="panel">
+      <div class="compat-pair">${pyramid(r1,a,b)}${pyramid(r2,b,a)}</div>
+      <p class="fun">획수는 손으로 쓰는 순서대로 셌어요. 세는 방법에 따라 결과가 조금 달라질 수 있어요. 재미로 봐 주세요.</p>
+    </div>`;
+  reveal($("#names-out"));
+});
+chainEnter($("#na"),$("#nb"));
+chainEnter($("#fa"),$("#fb"));
+
+/* ---------- 호감도 예상 ---------- */
+function fnv(s){let h=2166136261;for(const c of s){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0}
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function favorMsg(p){return p>=90?"오늘은 눈만 마주쳐도 웃음이 나는 날!":p>=75?"먼저 반갑게 인사를 건네 보면 좋은 날이에요":p>=60?"같이 할 수 있는 놀이를 찾아보세요":p>=45?"천천히 친해지는 중이에요. 칭찬 한마디로 시작해 볼까요?":"오늘은 각자 할 일에 집중하는 날. 내일은 또 달라요!"}
+$("#favor-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const a=$("#fa").value.trim(),b=$("#fb").value.trim(),err=$("#favor-err");err.textContent="";
+  if(!HANGUL.test(a)||!HANGUL.test(b)){err.textContent="이름은 한글로 1~5글자씩 적어 주세요. 띄어쓰기 없이 적어요.";return}
+  if(a===b){err.textContent="서로 다른 두 이름을 적어 주세요.";return}
+  const key=[a,b].sort().join("|")+"|"+today();
+  const main=30+fnv(key)%71;
+  const subs=[["이야기가 잘 통해요","talk"],["같이 있으면 웃음이 나요","laugh"],["서로 챙겨줘요","care"]].map(([t,s])=>({t,v:20+fnv(key+"|"+s)%81}));
+  $("#favor-out").innerHTML=`<div class="panel pink meter-big">
+      <p class="lead">${esc(a)} &amp; ${esc(b)}의 오늘(${today().replace(/-/g,".")}) 호감도</p>
+      <p class="pct"><span id="pct-num">0</span><small>%</small></p>
+      <div class="bar" aria-hidden="true"><i id="pct-bar"></i></div>
+      <p class="msg-big">${favorMsg(main)}</p>
+    </div>
+    <div class="panel">
+      <div class="subs">${subs.map((s,i)=>`<div class="sub"><span>${s.t}</span><b>${s.v}%</b><div class="bar" aria-hidden="true"><i data-w="${s.v}"></i></div></div>`).join("")}</div>
+      <p class="fun">이름과 날짜로 만든 재미 결과예요. 진짜 마음은 직접 이야기해 봐야 알 수 있어요.</p>
+    </div>`;
+  reveal($("#favor-out"));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    $("#pct-bar").style.width=main+"%";
+    document.querySelectorAll("#favor-out .sub .bar i").forEach(i=>i.style.width=i.dataset.w+"%");
+    countUp($("#pct-num"),main);
+  }));
+});
+function countUp(el,to){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){el.textContent=to;return}
+  const t0=performance.now(),d=900;
+  (function step(t){const k=Math.min(1,(t-t0)/d);el.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step)})(t0);
+}
+
+/* ---------- 고민 상담 ---------- */
+function ageVal(){const v=parseInt($("#age").value,10);return v>=8&&v<=19?v:null}
+function guide(){
+  const age=ageVal();
+  return `너는 어린이·청소년용 앱 '두근 놀이터'의 마음 상담 선생님이야. 사용자는 ${age?age+"살":"8~19살 사이 어린이나 청소년"}이야.
+- ${age&&age<=12?"초등학생이 이해할 수 있는 아주 쉬운 말로":"청소년에게 맞는 편한 말로"}, 다정한 존댓말로 3~6문장만 짧게 답해.
+- 좋아하는 마음, 짝사랑, 친구 관계, 다툼 고민을 따뜻하게 들어주고, 오늘 해볼 수 있는 작고 안전한 행동 하나를 제안해 (먼저 인사하기, 칭찬 한마디, 같이 놀자고 말하기 같은 것).
+- 사귀기, 스킨십, 둘이서만 몰래 만나기, 연락처나 사진 주고받기는 권하지 마. 좋아하는 마음은 친구로 잘 지내며 표현하는 쪽으로 안내해.
+- 온라인에서 모르는 사람이나 어른이 만나자고 하거나 사진·주소·비밀을 요구한다는 이야기가 나오면, 대답하지 말고 바로 부모님이나 선생님께 알리라고 분명히 말해.
+- 괴롭힘, 폭력, 자해 같은 위험 신호가 보이면 믿을 수 있는 어른에게 꼭 이야기하라고 하고, 청소년상담전화 1388(문자·카카오톡 상담도 가능)과 학교폭력 신고 117을 알려줘.
+- 굵게 표시가 필요하면 **이렇게**만 쓰고, 다른 마크다운 기호는 쓰지 마.`;
+}
+const chat=[{role:"assistant",intro:true,content:"안녕하세요! 두근 놀이터 상담 선생님이에요. 좋아하는 친구, 친구랑 다툰 일, 놀림받은 일 무엇이든 편하게 이야기해 주세요."}];
+let busy=false,sampleP=null;
+function fmt(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>")}
+function scrollLog(){const l=$("#log");l.scrollTop=l.scrollHeight}
+function renderChat(){
+  $("#log").innerHTML=chat.map(m=>`<div class="msg ${m.role}${m.role==="assistant"&&!m.content?" typing":""}">${m.role==="assistant"?`<span class="who-lbl">상담 선생님${m.offline?" · 기본 답변":""}</span>`:""}${m.content?fmt(m.content):"생각하는 중이에요…"}</div>`).join("");
+  scrollLog();$("#send").disabled=busy;
+}
+function history(){
+  const out=[];
+  for(const m of chat){
+    if(m.intro||m.failed||!m.content)continue;
+    const last=out[out.length-1];
+    if(last&&last.role===m.role)last.content+="\n"+m.content;else out.push({role:m.role,content:m.content});
+  }
+  while(out.length&&out[0].role!=="user")out.shift();
+  if(out.length)out[0]={role:"user",content:guide()+"\n\n[고민]\n"+out[0].content};
+  return out;
+}
+function getSample(){
+  if(!window.claude||typeof window.claude.use!=="function")return Promise.resolve(null);
+  if(!sampleP)sampleP=window.claude.use("sample").catch(()=>null);
+  return sampleP;
+}
+async function send(text){
+  text=String(text||"").trim();
+  if(!text||busy)return;
+  chat.push({role:"user",content:text});
+  const bot={role:"assistant",content:""};chat.push(bot);busy=true;renderChat();
+  try{
+    const sample=await getSample();
+    if(!sample){bot.content=fallback(text);bot.offline=true}
+    else{
+      const r=await sample(history(),{cache:false,onText:({text})=>{bot.content=text;renderChat()}});
+      bot.content=r.text||bot.content;
+    }
+  }catch(err){
+    const c=err&&err.code;
+    if(c==="not_granted"){sampleP=Promise.resolve(null);bot.content=fallback(text);bot.offline=true}
+    else if(c==="rate_limited"){bot.failed=true;bot.content="질문이 많이 몰렸어요. 1분쯤 뒤에 다시 보내 주세요."}
+    else{bot.failed=true;bot.content=(err&&err.text)?err.text:"답을 받지 못했어요. 잠시 뒤 다시 보내 주세요."}
+  }
+  busy=false;renderChat();
+}
+function fallback(t){
+  if(/모르는 사람|만나자|사진|주소|비밀/.test(t))return "**그런 말을 들었다면 대답하지 말고 바로 부모님이나 선생님께 알려 주세요.** 온라인에서 처음 보는 사람이 만나자고 하거나 사진, 주소, 비밀을 물어보는 건 위험할 수 있어요. 말해도 혼나지 않아요. 도움이 필요하면 청소년상담전화 1388에 전화하거나 문자해도 돼요.";
+  if(/놀려|놀림|괴롭/.test(t))return "놀림받으면 정말 속상하죠. 그건 내 잘못이 아니에요.\n\"그런 말 들으면 기분 나빠. 그만해 줘.\"라고 한 번 또박또박 말해 보세요. 그래도 계속되면 꼭 선생님이나 부모님께 이야기해요. 혼자 참지 않아도 돼요. 1388에서도 이야기를 들어줘요.";
+  if(/다퉜|싸웠|화해/.test(t))return "다투고 나면 마음이 무겁죠. 먼저 내 마음이 조금 가라앉을 때까지 기다려 보세요.\n그다음 \"아까는 내가 속상해서 그렇게 말했어. 미안해.\"처럼 내 마음을 짧게 말해 보면 좋아요. 쪽지로 전해도 괜찮아요.";
+  if(/말하고|고백|떨려/.test(t))return "떨리는 건 그만큼 마음이 소중하다는 뜻이에요.\n큰 고백보다 **작은 표현**부터 해 보세요. \"너랑 노는 게 재밌어\", \"오늘 발표 멋있었어\" 같은 한마디요. 친구가 어떤 대답을 해도 서로 좋은 친구로 지낼 수 있어요.";
+  if(/궁금|좋아하는지/.test(t))return "친구 마음은 직접 들어보기 전엔 아무도 몰라요. 그래도 나와 이야기하는 걸 즐거워하는지, 같이 놀자고 먼저 말하는지는 볼 수 있어요.\n오늘은 친구가 좋아하는 것에 대해 하나 물어보세요. 대화가 즐거우면 그걸로 충분히 좋은 시작이에요.";
+  if(/좋아하는/.test(t))return "누군가를 좋아하는 마음이 생기는 건 아주 자연스럽고 멋진 일이에요.\n그 친구와 **먼저 좋은 친구가 되는 것**부터 시작해 보세요. 반갑게 인사하고, 같이 놀자고 말해 보는 거예요. 마음이 복잡하면 믿을 수 있는 어른에게 이야기해 봐도 좋아요.";
+  return "이야기해 줘서 고마워요. 어떤 일이 있었는지, 그때 기분이 어땠는지 조금만 더 알려주면 같이 생각해 볼게요.";
+}
+function initTalk(){
+  $("#age").innerHTML=`<option value="">선택 안 함</option>`+Array.from({length:12},(_,i)=>i+8).map(n=>`<option value="${n}">${n}살</option>`).join("");
+  try{const s=(PROF&&PROF.age)?String(PROF.age):localStorage.getItem("dugeun-kids-age");if(s)$("#age").value=s}catch(e){}
+  $("#age").addEventListener("change",()=>{
+    try{localStorage.setItem("dugeun-kids-age",$("#age").value)}catch(e){}
+    if(PROF){PROF={...PROF,age:ageVal()};saveProf(PROF);renderProf();if(!profDirty)fillProf()}
+  });
+  renderChat();
+  const q=$("#q");
+  q.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();$("#composer").requestSubmit()}});
+  q.addEventListener("input",()=>{q.style.height="auto";q.style.height=Math.min(q.scrollHeight,140)+"px"});
+  $("#composer").addEventListener("submit",e=>{e.preventDefault();const v=q.value;q.value="";q.style.height="auto";send(v)});
+}
+
+/* ---------- 클릭 ---------- */
+document.addEventListener("click",e=>{
+  const pk=e.target.closest("[data-pick]");
+  if(pk){pick(Number(pk.dataset.pick));return}
+  const bb=e.target.closest("[data-bal]");
+  if(bb){
+    const a=bb.dataset.bal;
+    if(a==="go"){G.phase="play";G.turn=2;G.step=0}
+    else if(a==="back"){G.step=Math.max(0,G.step-1)}
+    else if(a==="quit"){G.phase="setup"}
+    else if(a==="again"){G={phase:"setup",p1:G.p1,p2:"",turn:1,step:0,a1:[],a2:[],lock:false}}
+    else if(a==="replay"){G={phase:"play",p1:G.p1,p2:G.p2,turn:1,step:0,a1:[],a2:[],lock:false}}
+    renderBal();reveal($("#bal"));return}
+  const q=e.target.closest("[data-q]");
+  if(q){send(q.dataset.q);return}
+});
+
+/* ---------- 내 프로필 (이 기기에만 저장) ---------- */
+const LIKES=["떡볶이","치킨","아이돌","축구","게임","그림","춤","노래","웹툰","강아지","고양이","책","만들기","운동"];
+const PROF_KEY="dugeun-kids-profile";
+function loadProf(){
+  try{
+    const p=JSON.parse(localStorage.getItem(PROF_KEY));
+    if(!p||typeof p!=="object"||!p.nick)return null;
+    return{nick:String(p.nick).slice(0,10),age:(p.age>=8&&p.age<=19)?p.age:null,likes:Array.isArray(p.likes)?p.likes.filter(x=>LIKES.includes(x)).slice(0,5):[],bio:String(p.bio||"").slice(0,40),balance:Array.isArray(p.balance)&&p.balance.length===N?p.balance.map(x=>x?1:0):null};
+  }catch(e){return null}
+}
+function saveProf(p){try{localStorage.setItem(PROF_KEY,JSON.stringify(p));return true}catch(e){return false}}
+let PROF=loadProf(),profDirty=false,profConfirm=false;
+function renderProf(){
+  const box=$("#prof-card");
+  if(!PROF){box.innerHTML=`<div class="empty-card">아직 프로필이 없어요. 아래에서 별명과 좋아하는 것을 골라 내 취향 카드를 만들어 보세요.</div>`;return}
+  const bal=PROF.balance
+    ?`<details><summary>내 밸런스 게임 선택 보기</summary><ul class="cmp">${QS.map((q,i)=>`<li style="grid-template-columns:88px 1fr"><span class="k">${esc(q.k)}</span><span class="a1">${esc(PROF.balance[i]?q.b:q.a)}</span></li>`).join("")}</ul></details>`
+    :`<p class="fun">밸런스 게임을 내 별명으로 하면 내 선택이 이 카드에 저장돼요.</p>`;
+  box.innerHTML=`<div class="panel pink">
+    <div class="pcard-top"><div class="avatar" aria-hidden="true">${esc(PROF.nick.slice(0,1))}</div>
+      <div><p class="eyebrow">내 취향 카드</p><h2 class="pcard-name">${esc(PROF.nick)}</h2>${PROF.age?`<p class="lead">${PROF.age}살</p>`:""}</div></div>
+    ${PROF.bio?`<p class="pcard-bio">${esc(PROF.bio)}</p>`:""}
+    ${PROF.likes.length?`<ul class="tags" aria-label="좋아하는 것">${PROF.likes.map(l=>`<li class="tag">${esc(l)}</li>`).join("")}</ul>`:""}
+    ${bal}
+  </div>`;
+}
+function fillProf(){
+  const p=PROF;
+  $("#pf-nick").value=p?p.nick:"";
+  $("#pf-age").value=p&&p.age?String(p.age):(ageVal()?String(ageVal()):"");
+  document.querySelectorAll("#pf-likes input").forEach(i=>i.checked=!!p&&p.likes.includes(i.value));
+  $("#pf-bio").value=p?p.bio:"";
+  $("#pf-count").textContent=`${$("#pf-bio").value.length} / 40`;
+  $("#pf-save").textContent=p?"프로필 고치기":"프로필 저장";
+  renderProfDel();
+}
+function renderProfDel(){
+  const a=$("#pf-del");
+  if(!PROF){a.innerHTML="";return}
+  a.innerHTML=profConfirm
+    ?`<span class="hint">정말 지울까요?</span> <button type="button" class="btn small" data-pdel="yes">지우기</button> <button type="button" class="btn small ghost" data-pdel="no">취소</button>`
+    :`<button type="button" class="btn small ghost" data-pdel="ask">프로필 지우기</button>`;
+}
+function saveProfForm(){
+  const err=$("#pf-err"),ok=$("#pf-ok");err.textContent="";ok.textContent="";
+  const nick=$("#pf-nick").value.trim();
+  const age=parseInt($("#pf-age").value,10);
+  const likes=[...document.querySelectorAll("#pf-likes input:checked")].map(i=>i.value);
+  const bio=$("#pf-bio").value.trim();
+  if(nick.length<2){err.textContent="별명은 2자 이상으로 적어 주세요.";return}
+  if(/\d{3,}/.test(nick+" "+bio)){err.textContent="전화번호 같은 숫자는 적지 말아 주세요.";return}
+  if(!likes.length){err.textContent="좋아하는 것을 1개 이상 골라 주세요.";return}
+  const first=!PROF;
+  const next={nick,age:(age>=8&&age<=19)?age:null,likes,bio,balance:PROF?PROF.balance:null};
+  if(!saveProf(next)){err.textContent="이 브라우저에서는 저장할 수 없어요. 일반 창에서 열어 주세요.";return}
+  PROF=next;profDirty=false;profConfirm=false;
+  if(PROF.age){$("#age").value=String(PROF.age);try{localStorage.setItem("dugeun-kids-age",String(PROF.age))}catch(e){}}
+  renderProf();fillProf();
+  ok.textContent=first?"프로필을 만들었어요. 밸런스 게임에 내 별명이 먼저 들어가요.":"프로필을 고쳤어요.";
+  reveal($("#prof-card"));
+}
+function saveBalanceToProfile(){
+  if(!PROF)return;
+  const ans=PROF.nick===G.p1?G.a1:(PROF.nick===G.p2?G.a2:null);
+  if(ans&&ans.length===N){PROF={...PROF,balance:ans.slice()};saveProf(PROF);renderProf()}
+}
+function initProf(){
+  $("#pf-age").innerHTML=`<option value="">선택 안 함</option>`+Array.from({length:12},(_,i)=>i+8).map(n=>`<option value="${n}">${n}살</option>`).join("");
+  $("#pf-likes").innerHTML=LIKES.map((l,i)=>`<label><input type="checkbox" id="pl-${i}" value="${l}"><span>${l}</span></label>`).join("");
+  $("#prof-form").addEventListener("input",()=>{profDirty=true;$("#pf-ok").textContent="";$("#pf-count").textContent=`${$("#pf-bio").value.length} / 40`});
+  $("#pf-likes").addEventListener("change",e=>{
+    if(document.querySelectorAll("#pf-likes input:checked").length>5){e.target.checked=false;$("#pf-err").textContent="좋아하는 것은 5개까지 고를 수 있어요."}
+  });
+  chainEnter($("#pf-nick"),$("#pf-bio"));
+  $("#prof-form").addEventListener("submit",e=>{e.preventDefault();saveProfForm()});
+  $("#pf-del").addEventListener("click",e=>{
+    const b=e.target.closest("[data-pdel]");if(!b)return;
+    if(b.dataset.pdel==="ask")profConfirm=true;
+    else if(b.dataset.pdel==="no")profConfirm=false;
+    else{
+      try{localStorage.removeItem(PROF_KEY)}catch(e){}
+      PROF=null;profConfirm=false;profDirty=false;
+      renderProf();fillProf();$("#pf-ok").textContent="프로필을 지웠어요.";return;
+    }
+    renderProfDel();
+  });
+  $("#logout").addEventListener("click",logout);
+  renderProf();fillProf();
+}
+
+/* ---------- QR 입장 ---------- */
+// QR 주소 끝의 초대 토큰 원문은 페이지에 넣지 않고 해시만 넣는다. 친구를 빼려면 그 번호 줄을 지우고 다시 공개.
+const SALT="dugeun-kids:";
+const PASS=[
+ {n:1,h:"c8836b551554c125f6b6b186ed750fcb772f47f52827d32a2dde51e145153b99"},
+ {n:2,h:"5fa86d9ff2b7537800566da1a5d9532b8f07e15951cd7ddbd5c89eb973691f93"},
+ {n:3,h:"b153994359bb1c494b4878160befe9e06b638cea16249aa97607c2411b99e7f7"},
+ {n:4,h:"f3b857f85933b4b2ffc34afd7e6be7883d84f3d7a4b8a1e9f28d36028ff60bc1"},
+ {n:5,h:"b15e2abc8c6529c7d8a5f420a1cb65975121228f197c29364309f84bcf9e825f"},
+ {n:6,h:"5d11f689ee1d801db62c7a618fc60f06599575392d7c38a3f2a80d5e2ae6c163"},
+ {n:7,h:"2110109aee6f9d1a6fb3ebfb879c42727cc658401d73057243eafb0dd5822053"},
+ {n:8,h:"11f5ed1828df5051486394d8e18bd3214b4e8f91812be135a51bbe5740100b49"},
+ {n:9,h:"c75b7dd37ee891fdf27a41cbbfa89aee8ee41132829e74b999a38340f8acae39"},
+ {n:10,h:"62cc2152044053df6944ba1cac243e7b1a60373b4eebffd648cb979d328fa7d0"},
+ {n:0,h:"215be0d229c29a8e220be106e41399fd7f55d0e6a46942b84bea27220b94840d"} // 누구나 쓰는 공용 QR
+];
+const PASS_KEY="dugeun-kids-pass";
+const TOKEN=/^[A-Za-z0-9]{12}$/;
+async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function validToken(t){
+  if(!TOKEN.test(String(t||"")))return false;
+  try{const h=await sha256(SALT+t);return PASS.some(p=>p.h===h)}catch(e){return null}
+}
+function unlock(){
+  $("#gate").hidden=true;document.querySelector("nav").hidden=false;$("main").hidden=false;
+  route();
+}
+function showGate(msg){
+  $("#gate").hidden=false;document.querySelector("nav").hidden=true;$("main").hidden=true;
+  $("#gate-err").textContent=msg||"";
+}
+function logout(){
+  try{localStorage.removeItem(PASS_KEY)}catch(e){}
+  showGate("이 기기에서 나갔어요. 다시 들어오려면 받은 QR 코드를 찍어 주세요.");
+  window.scrollTo(0,0);
+}
+async function gate(){
+  const fromHash=location.hash.slice(1);
+  if(TOKEN.test(fromHash)){
+    const ok=await validToken(fromHash);
+    if(ok){try{localStorage.setItem(PASS_KEY,fromHash)}catch(e){}location.hash="balance";unlock();return}
+    if(ok===null){showGate("이 브라우저에서는 QR을 확인할 수 없어요. 다른 브라우저로 열어 주세요.");return}
+    showGate("이 QR 코드는 쓸 수 없어요. 초대한 친구에게 새 QR을 받아 주세요.");return;
+  }
+  let saved=null;try{saved=localStorage.getItem(PASS_KEY)}catch(e){}
+  if(saved){
+    const ok=await validToken(saved);
+    if(ok){unlock();return}
+    try{localStorage.removeItem(PASS_KEY)}catch(e){}
+    if(ok===false){showGate("QR이 새로 바뀌었어요. 초대한 친구에게 새 QR을 받아 주세요.");return}
+  }
+  showGate("");
+}
+
+// 만든 사람(Claude에 로그인한 주인)은 QR 없이 바로 들어간다. 로그인 안 한 사람은 null이라 그대로 잠김.
+async function ownerCheck(){
+  try{
+    if(!window.claude||typeof window.claude.use!=="function")return;
+    const u=await window.claude.use("user");
+    if(u&&typeof u.isOwner==="function"&&await u.isOwner()&&!$("#gate").hidden)unlock();
+  }catch(e){}
+}
+
+initProf();renderBal();initTalk();gate().then(ownerCheck);
+})();
+</script>
+
+</body>
+</html>
