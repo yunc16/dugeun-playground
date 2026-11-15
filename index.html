@@ -165,6 +165,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);outline:none;bo
 .composer textarea{resize:none;min-height:44px;max-height:140px}
 .composer .btn{flex:none;height:44px}
 
+/* 결과 공유 창 */
+.sheet-back{position:fixed;inset:0;z-index:30;background:rgba(43,29,34,.45);display:flex;align-items:flex-end;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--bg);width:100%;max-width:480px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;box-sizing:border-box}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet-head strong{font-family:var(--font-display);font-weight:400;font-size:22px}
+.sheet img{width:100%;height:auto;border-radius:14px;border:1px solid var(--line);-webkit-touch-callout:default}
+.sheet .actions .btn{flex:1;text-align:center}
+
 /* QR 입장 잠금 화면 */
 .gate-wrap{padding-block:28px 40px}
 .gate-card{max-width:460px;margin:0 auto}
@@ -376,6 +384,20 @@ footer ul{margin:6px 0 0;padding-left:18px;display:grid;gap:2px}
   </section>
 </main>
 
+<div class="sheet-back" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+    <div class="sheet-head"><strong id="sheet-t">결과 공유하기</strong><button class="textbtn" type="button" data-sheet="close">닫기</button></div>
+    <img id="sheet-img" alt="공유할 결과 카드">
+    <p class="fun">이미지를 길게 누르거나(휴대폰) 오른쪽 클릭(컴퓨터)해서 저장한 뒤 카카오톡, 인스타그램에 올려 주세요. 친구 이름이 들어간 결과는 친구에게 먼저 물어보고 올려요.</p>
+    <div class="actions">
+      <button class="btn" type="button" data-sheet="share" id="sheet-share" hidden>카톡·인스타로 보내기</button>
+      <button class="btn" type="button" data-sheet="save">이미지 저장</button>
+      <button class="btn ghost" type="button" data-sheet="copy">문구·링크 복사</button>
+    </div>
+    <p class="ok" id="sheet-ok" role="status"></p>
+  </div>
+</div>
+
 <footer>
   <div class="wrap">
     <strong>안전하게 놀아요</strong>
@@ -481,15 +503,18 @@ function renderBal(){
   // 결과
   const solo=!G.p2;
   if(solo){
+    LAST.bal={chip:"밸런스 게임 · 나의 선택",who:G.p1,big:"",msg:"둘 중 하나, 나는 이걸 골랐어요",small:true,lines:QS.map((q,i)=>`${q.k}: ${G.a1[i]?q.b:q.a}`),text:`[두근 놀이터] ${G.p1}의 밸런스 게임 선택! 너는 뭐 고를래?`};
     box.innerHTML=`<div class="panel pink">
       <strong>${esc(G.p1)}의 선택</strong>
       <ul class="cmp">${QS.map((q,i)=>`<li style="grid-template-columns:88px 1fr"><span class="k">${esc(q.k)}</span><span class="a1">${esc(G.a1[i]?q.b:q.a)}</span></li>`).join("")}</ul>
       <p class="lead">친구 이름도 넣고 같이 하면 몇 개가 같은지 비교할 수 있어요.</p>
-      <div class="actions"><button class="btn" type="button" data-bal="again">친구랑 하기</button></div>
+      <div class="actions"><button class="btn" type="button" data-share="bal">결과 공유하기</button><button class="btn ghost" type="button" data-bal="again">친구랑 하기</button></div>
     </div>`;
     return;
   }
   let same=0;G.a1.forEach((x,i)=>{if(x===G.a2[i])same++});
+  const sameK=QS.filter((q,i)=>G.a1[i]===G.a2[i]).map(q=>q.k);
+  LAST.bal={chip:"밸런스 게임",who:`${G.p1} & ${G.p2}`,big:`${same}/${N}`,msg:balLabel(same),lines:[sameK.length?`같은 답: ${sameK.join(", ")}`:"같은 답이 하나도 없어요"],text:`[두근 놀이터] ${G.p1} & ${G.p2} 밸런스 게임 ${N}문제 중 ${same}개 같은 답! ${balLabel(same)}`};
   box.innerHTML=`<div class="panel pink">
     <div class="result-head">
       <div class="result-num">${same}<small> / ${N}</small></div>
@@ -502,7 +527,7 @@ function renderBal(){
       <li><span class="cmp-head">문제</span><span class="cmp-head a1">${esc(G.p1)}</span><span class="cmp-head a2">${esc(G.p2)}</span></li>
       ${QS.map((q,i)=>`<li class="${G.a1[i]===G.a2[i]?"same":""}"><span class="k">${esc(q.k)}</span><span class="a1">${esc(G.a1[i]?q.b:q.a)}</span><span class="a2">${esc(G.a2[i]?q.b:q.a)}</span></li>`).join("")}
     </ul>
-    <div class="actions"><button class="btn" type="button" data-bal="replay">같은 친구랑 다시</button><button class="btn ghost" type="button" data-bal="again">다른 친구랑 하기</button></div>
+    <div class="actions"><button class="btn" type="button" data-share="bal">결과 공유하기</button><button class="btn ghost" type="button" data-bal="replay">같은 친구랑 다시</button><button class="btn ghost" type="button" data-bal="again">다른 친구랑 하기</button></div>
   </div>`;
 }
 function pick(v){
@@ -555,12 +580,14 @@ $("#names-form").addEventListener("submit",e=>{
   if(!HANGUL.test(a)||!HANGUL.test(b)){err.textContent="이름은 한글로 1~5글자씩 적어 주세요. 띄어쓰기 없이 적어요.";return}
   const r1=compat(a,b),r2=compat(b,a);
   const avg=Math.round((r1.pct+r2.pct)/2);
+  LAST.names={chip:"이름 궁합 테스트",who:`${a} ♥ ${b}`,big:avg+"%",msg:compatMsg(avg),lines:[`${a} → ${b} ${r1.pct}%`,`${b} → ${a} ${r2.pct}%`],text:`[두근 놀이터] ${a} ♥ ${b} 이름 궁합은 ${avg}%! ${compatMsg(avg)}`};
   // 처음 이름 쪽은 핑크, 두 번째 이름 쪽은 파랑으로 칠하기 위해 r2의 who를 뒤집는다
   r2.syl=r2.syl.map(s=>({...s,who:s.who===1?2:1}));
   $("#names-out").innerHTML=`<div class="panel pink">
       <p class="lead">두 방향을 합친 궁합</p>
       <p class="pct">${avg}<small>%</small></p>
       <p class="msg-big">${compatMsg(avg)}</p>
+      <div class="actions"><button class="btn" type="button" data-share="names">결과 공유하기</button></div>
     </div>
     <div class="panel">
       <div class="compat-pair">${pyramid(r1,a,b)}${pyramid(r2,b,a)}</div>
@@ -583,11 +610,13 @@ $("#favor-form").addEventListener("submit",e=>{
   const key=[a,b].sort().join("|")+"|"+today();
   const main=30+fnv(key)%71;
   const subs=[["이야기가 잘 통해요","talk"],["같이 있으면 웃음이 나요","laugh"],["서로 챙겨줘요","care"]].map(([t,s])=>({t,v:20+fnv(key+"|"+s)%81}));
+  LAST.favor={chip:`오늘의 호감도 · ${today().replace(/-/g,".")}`,who:`${a} & ${b}`,big:main+"%",msg:favorMsg(main),lines:subs.map(s=>`${s.t} ${s.v}%`),text:`[두근 놀이터] ${a} & ${b}의 오늘 호감도는 ${main}%! ${favorMsg(main)}`};
   $("#favor-out").innerHTML=`<div class="panel pink meter-big">
       <p class="lead">${esc(a)} &amp; ${esc(b)}의 오늘(${today().replace(/-/g,".")}) 호감도</p>
       <p class="pct"><span id="pct-num">0</span><small>%</small></p>
       <div class="bar" aria-hidden="true"><i id="pct-bar"></i></div>
       <p class="msg-big">${favorMsg(main)}</p>
+      <div class="actions"><button class="btn" type="button" data-share="favor">결과 공유하기</button></div>
     </div>
     <div class="panel">
       <div class="subs">${subs.map((s,i)=>`<div class="sub"><span>${s.t}</span><b>${s.v}%</b><div class="bar" aria-hidden="true"><i data-w="${s.v}"></i></div></div>`).join("")}</div>
@@ -685,8 +714,93 @@ function initTalk(){
   $("#composer").addEventListener("submit",e=>{e.preventDefault();const v=q.value;q.value="";q.style.height="auto";send(v)});
 }
 
+/* ---------- 결과 공유 ---------- */
+const SHARE_URL="https://yunc16.github.io/dugeun-playground/#PTsDqcEhNFNQ";
+const LAST={};
+let shareBlob=null,shareText="",shareUrlObj=null;
+function heartPath(x,cx,cy,s){x.beginPath();x.moveTo(cx,cy+s*0.9);x.bezierCurveTo(cx-s*1.4,cy,cx-s*0.9,cy-s*1.1,cx,cy-s*0.35);x.bezierCurveTo(cx+s*0.9,cy-s*1.1,cx+s*1.4,cy,cx,cy+s*0.9);x.closePath();x.fill()}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function wrapText(x,t,maxW){
+  const out=[];let cur="";
+  for(const w of String(t).split(" ")){
+    const test=cur?cur+" "+w:w;
+    if(x.measureText(test).width<=maxW){cur=test;continue}
+    if(cur)out.push(cur);cur=w;
+    while(x.measureText(cur).width>maxW){let i=cur.length;while(i>1&&x.measureText(cur.slice(0,i)).width>maxW)i--;out.push(cur.slice(0,i));cur=cur.slice(i)}
+  }
+  if(cur)out.push(cur);return out;
+}
+async function drawCard(c){
+  try{await Promise.all([document.fonts.load('80px "Jua"'),document.fonts.load('bold 40px "Noto Sans KR"'),document.fonts.load('40px "Noto Sans KR"')])}catch(e){}
+  const W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+  const D='"Jua","Noto Sans KR",sans-serif',B='"Noto Sans KR",sans-serif';
+  x.fillStyle="#ffffff";x.fillRect(0,0,W,H);
+  x.fillStyle="#fff4f6";rr(x,40,40,W-80,H-80,56);x.fill();
+  x.strokeStyle="#e8436a";x.lineWidth=12;rr(x,40,40,W-80,H-80,56);x.stroke();
+  x.textAlign="center";x.textBaseline="alphabetic";
+  x.font=`72px ${D}`;const bw=x.measureText("두근 놀이터").width;
+  x.fillStyle="#e8436a";heartPath(x,W/2-bw/2-30,148,30);x.fillText("두근 놀이터",W/2+20,175);
+  x.font=`bold 40px ${B}`;const cw=x.measureText(c.chip).width+64;
+  x.fillStyle="#fde3ea";rr(x,(W-cw)/2,220,cw,70,35);x.fill();x.fillStyle="#c42a52";x.fillText(c.chip,W/2,269);
+  let y=390;
+  x.fillStyle="#2b1d22";x.font=`66px ${D}`;
+  for(const l of wrapText(x,c.who,W-200)){x.fillText(l,W/2,y);y+=80}
+  if(c.big){x.fillStyle="#e8436a";x.font=`230px ${D}`;y+=190;x.fillText(c.big,W/2,y);y+=60}
+  x.fillStyle="#2b1d22";x.font=`52px ${D}`;y+=40;
+  for(const l of wrapText(x,c.msg,W-220)){x.fillText(l,W/2,y);y+=68}
+  x.fillStyle="#85737a";x.font=`${c.small?34:40}px ${B}`;y+=20;
+  for(const line of c.lines||[]){for(const l of wrapText(x,line,W-240)){if(y>H-220)break;x.fillText(l,W/2,y);y+=c.small?48:56}}
+  x.fillStyle="#c42a52";x.font=`bold 38px ${B}`;x.fillText("두근 놀이터에서 나도 해 보기",W/2,H-140);
+  x.fillStyle="#85737a";x.font=`30px ${B}`;x.fillText("재미로 보는 결과예요",W/2,H-92);
+  return new Promise(r=>cv.toBlob(b=>r(b),"image/png"));
+}
+async function openShare(kind){
+  const c=LAST[kind];if(!c)return;
+  $("#sheet-ok").textContent="";
+  shareBlob=await drawCard(c);shareText=c.text+"\n나도 해 보기: "+SHARE_URL;
+  if(shareUrlObj)URL.revokeObjectURL(shareUrlObj);
+  shareUrlObj=URL.createObjectURL(shareBlob);$("#sheet-img").src=shareUrlObj;
+  let can=false;
+  try{can=!!(navigator.canShare&&navigator.canShare({files:[new File([shareBlob],"dugeun-result.png",{type:"image/png"})]}))}catch(e){}
+  $("#sheet-share").hidden=!can;
+  $("#sheet").hidden=false;document.body.style.overflow="hidden";
+}
+function closeShare(){$("#sheet").hidden=true;document.body.style.overflow=""}
+async function sheetAction(a){
+  const ok=$("#sheet-ok");
+  if(a==="close"){closeShare();return}
+  if(a==="share"){
+    try{await navigator.share({files:[new File([shareBlob],"dugeun-result.png",{type:"image/png"})],text:shareText,title:"두근 놀이터"});ok.textContent="보냈어요!"}
+    catch(e){if(e&&e.name==="AbortError")return;ok.textContent="여기서는 바로 보내기가 안 돼요. 이미지를 저장해서 올려 주세요."}
+    return;
+  }
+  if(a==="save"){
+    // Claude 안에서는 downloads 기능으로 저장, 크롬 주소에서는 일반 다운로드
+    try{
+      const dl=(window.claude&&typeof window.claude.use==="function")?await window.claude.use("downloads"):null;
+      if(dl){await dl.save({filename:"dugeun-result.png",data:shareBlob});ok.textContent="이미지를 저장했어요.";return}
+    }catch(e){if(e&&e.code){ok.textContent="저장하지 않았어요. 이미지를 길게 눌러 저장해도 돼요.";return}}
+    const l=document.createElement("a");l.href=shareUrlObj;l.download="dugeun-result.png";document.body.appendChild(l);l.click();l.remove();
+    ok.textContent="저장이 안 되면 이미지를 길게 눌러 저장해 주세요.";return;
+  }
+  if(a==="copy"){
+    try{await navigator.clipboard.writeText(shareText);ok.textContent="문구와 링크를 복사했어요. 카톡이나 인스타에 붙여 넣으세요."}
+    catch(e){
+      const t=document.createElement("textarea");t.value=shareText;t.setAttribute("readonly","");t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();
+      let done=false;try{done=document.execCommand("copy")}catch(_){}
+      t.remove();ok.textContent=done?"문구와 링크를 복사했어요.":"복사가 안 됐어요. 이 문구를 직접 옮겨 주세요: "+shareText;
+    }
+  }
+}
+$("#sheet").addEventListener("click",e=>{if(e.target===$("#sheet"))closeShare()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden)closeShare()});
+
 /* ---------- 클릭 ---------- */
 document.addEventListener("click",e=>{
+  const sh=e.target.closest("[data-share]");
+  if(sh){openShare(sh.dataset.share);return}
+  const sa=e.target.closest("[data-sheet]");
+  if(sa){sheetAction(sa.dataset.sheet);return}
   const pk=e.target.closest("[data-pick]");
   if(pk){pick(Number(pk.dataset.pick));return}
   const bb=e.target.closest("[data-bal]");
